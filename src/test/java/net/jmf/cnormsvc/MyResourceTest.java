@@ -1,15 +1,15 @@
 package net.jmf.cnormsvc;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.glassfish.grizzly.http.server.HttpServer;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 public class MyResourceTest {
 
@@ -34,7 +34,7 @@ public class MyResourceTest {
 
     @After
     public void tearDown() throws Exception {
-        server.stop();
+        server.shutdownNow();
     }
 
     /**
@@ -42,7 +42,7 @@ public class MyResourceTest {
      */
     @Test
     public void testGetIt() {
-        String responseMsg = target.path("myresource").request().get(String.class);
-        assertEquals("Got it!", responseMsg);
+        String responseMsg = target.path("hash/andre").request().get(String.class);
+        assertEquals("{\"value\":\"andre\",\"hash\":92958282,\"length\":5}", responseMsg);
     }
 }
