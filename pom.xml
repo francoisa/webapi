@@ -3,14 +3,14 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.example.rest</groupId>
-    <artifactId>webapi</artifactId>
+    <groupId>net.jmf</groupId>
+    <artifactId>cnormsvc</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>webapi</name>
 
     <properties>
-        <jersey.version>2.17</jersey.version>
+        <jersey.version>2.24</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -52,6 +52,21 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>net.jmf.cnormsvc.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
