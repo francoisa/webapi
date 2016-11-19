@@ -1,5 +1,7 @@
 package net.jmf.cnormsvc;
 
+import java.util.logging.Logger;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -10,6 +12,8 @@ import com.google.gson.Gson;
 
 @Path("hash")
 public class MyResource {
+	private static final Logger log = Logger.getLogger(MyResource.class.toString());
+	
 	private Gson gson;
 	
 	public MyResource() {
@@ -26,6 +30,8 @@ public class MyResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getIt(@PathParam("str") String str) {
-        return gson.toJson(new ObjectStats(str));
+		String result = gson.toJson(new ObjectStats(str));
+		log.info("result: " + result);
+        return result;
     }
 }
