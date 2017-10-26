@@ -1,4 +1,4 @@
-package net.jmf.cnormsvc;
+package net.jmf.webapi;
 
 import java.io.IOException;
 import java.net.URI;

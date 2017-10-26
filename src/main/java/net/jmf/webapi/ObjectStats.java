@@ -1,4 +1,4 @@
-package net.jmf.cnormsvc;
+package net.jmf.webapi;
 
 public class ObjectStats {
 	public ObjectStats(String v) {

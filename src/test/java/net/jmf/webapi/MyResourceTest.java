@@ -1,4 +1,4 @@
-package net.jmf.cnormsvc;
+package net.jmf.webapi;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,6 +10,8 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import net.jmf.webapi.Main;
 
 public class MyResourceTest {
 
