@@ -23,8 +23,7 @@ public class JMeterFromExistingJMX {
 		this.propFile = propFile;
 	}
 	
-    public double run(String testPlan, List<Long> times) throws Exception {
-        double avgLatency = 0.0;
+    public void run(String testPlan, List<SampleData> times) throws Exception {
         JMeterUtils.setJMeterHome(jmeterHome);
         // Initialize Properties, logging, locale, etc.
         JMeterUtils.loadJMeterProperties(propFile);
@@ -51,6 +50,5 @@ public class JMeterFromExistingJMX {
             jmeter.configure(testPlanTree);
             jmeter.run();
         }
-        return avgLatency;
     }
 }

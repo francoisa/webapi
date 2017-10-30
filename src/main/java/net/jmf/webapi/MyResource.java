@@ -2,7 +2,9 @@ package net.jmf.webapi;
 
 import java.util.logging.Logger;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -10,7 +12,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.google.gson.Gson;
 
-@Path("hash")
+@Path("str")
 public class MyResource {
 	private static final Logger log = Logger.getLogger(MyResource.class.toString());
 	
@@ -26,7 +28,7 @@ public class MyResource {
      *
      * @return String that will be returned as a text/plain response.
      */
-	@Path("{str}")
+	@Path("hash/{str}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getIt(@PathParam("str") String str) {
@@ -34,4 +36,15 @@ public class MyResource {
 		log.info("result: " + result);
         return result;
     }
+
+	@Path("xform")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+    public String postIt(FuncInput funcInput) {
+		String output = gson.toJson(new ObjectStats(funcInput.getValue()));
+		log.info("result: " + output);
+        return output;
+    }
+
 }

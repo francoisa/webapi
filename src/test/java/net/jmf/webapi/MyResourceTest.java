@@ -11,8 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.jmf.webapi.Main;
-
 public class MyResourceTest {
 
     private HttpServer server;
@@ -21,7 +19,7 @@ public class MyResourceTest {
     @Before
     public void setUp() throws Exception {
         // start the server
-        server = Main.startServer();
+        //server = Main.startServer();
         // create the client
         Client c = ClientBuilder.newClient();
 
@@ -36,7 +34,7 @@ public class MyResourceTest {
 
     @After
     public void tearDown() throws Exception {
-        server.shutdownNow();
+        if (server!= null) server.shutdownNow();
     }
 
     /**
@@ -44,7 +42,7 @@ public class MyResourceTest {
      */
     @Test
     public void testGetIt() {
-        String responseMsg = target.path("hash/andre").request().get(String.class);
+        String responseMsg = target.path("str/hash/andre").request().get(String.class);
         assertEquals("{\"value\":\"andre\",\"hash\":92958282,\"length\":5}", responseMsg);
     }
 }

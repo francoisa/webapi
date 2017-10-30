@@ -3,55 +3,75 @@ package net.jmf.webapi;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class PerfTest {
 	private JMeterFromExistingJMX jmeter;
+	private static String testPlan;
+	private static int expectedMedianRespTime; 
+	private static int delta;
+	private static String home;
+	private static String properties;
+
+	@BeforeClass
+	public static void initislize() {
+		home = "src/test/resources/".replace('/', File.separatorChar);
+		testPlan = home + "testPlan.jmx";
+		properties = home + "jmeter.properties";
+		System.setProperty("org.apache.logging.log4j.simplelog.StatusLogger.level", "INFO");
+		System.setProperty("log4j.configuration", home + "log4j.xml");
+		
+	}
 	
 	@Before
-	public void loadJmeterTestPlan(String home, String properties) {
+	public void loadJmeterTestPlan() {
 		jmeter = new JMeterFromExistingJMX(home, properties);
 	}
-    
+
 	@Test
-	public void typicalLoad(String testPlan, int latency, int delta) throws Exception {
+	public void typicalLoad() throws Exception {
+		expectedMedianRespTime = 100;
+		delta = 30;
 		System.out.print("testplan: " + testPlan);
-		System.out.print(" | expected median latency: " + latency);
+		System.out.print(" | expected median latency: " + expectedMedianRespTime);
 		System.out.println(" | delta: " + delta);
-		List<Long> times = new ArrayList<Long>();
-		jmeter.run(testPlan, times);
-		assertNotEquals("There were no samples recorded.", times.size(), 0); 
-		System.out.println("# of samples: " + times.size());
-		double[] timeArray = new double[times.size()];
-		int arrayIndex = 0;
-		for (int listIndex = 0; listIndex < timeArray.length; ++listIndex) {
-			if (times.get(listIndex) != null) {
-				timeArray[arrayIndex] = times.get(listIndex);
-				arrayIndex++;
-			}
+		List<SampleData> sampleList = new LinkedList<>();
+		jmeter.run(testPlan, sampleList);
+		assertNotEquals("There were no samples recorded.", sampleList.size(), 0); 
+		System.out.println("# of samples: " + sampleList.size());
+		sampleList = sampleList
+				.parallelStream()
+				.filter(s -> (s.getEndTime() != null && s.getRespTime() != null))
+				.collect(Collectors.toList());
+		int i = 0;
+		double[] actualRespTimeArray = new double[sampleList.size()];
+		double[] actualEndTimeArray = new double[sampleList.size()];
+		for (SampleData s : sampleList) {
+			actualRespTimeArray[i] = s.getRespTime();
+			actualEndTimeArray[i] = s.getRespTime();
+			i++;
 		}
-		double[] latencyArray = timeArray;
-		assertNotEquals("All the samples are null.", arrayIndex, 0);
-		if (arrayIndex < timeArray.length) {
-			System.out.println("# of successful samples: " + arrayIndex);
-			latencyArray = new double[arrayIndex];
-			System.arraycopy(timeArray, 0, latencyArray, 0, arrayIndex);
-		}
-		int avgLatency = (int) StatUtils.mean(latencyArray);
-		int medianLatency = (int) StatUtils.percentile(latencyArray, 50.0);
-		int stdDeviation = (int) Math.sqrt(StatUtils.variance(latencyArray));
-		System.out.print("actual median latency: " + medianLatency);
-		System.out.println(" | average latency: " + avgLatency);
-		System.out.print("actual min: " + StatUtils.min(latencyArray));
-		System.out.println(" | actual max: " + StatUtils.max(latencyArray));
+		long avgRespTime = (long) StatUtils.mean(actualRespTimeArray);
+		long actualMedianRespTime = (long) StatUtils.percentile(actualRespTimeArray, 50.0);
+		long stdDeviation = (long) Math.sqrt(StatUtils.variance(actualRespTimeArray));
+		String stats = "actual response time median: %d | average: %d | min: %.0f | max: %.0f ";
+		System.out.println(String.format(stats, actualMedianRespTime, avgRespTime, StatUtils.min(actualRespTimeArray), 
+				StatUtils.max(actualRespTimeArray)));
 		System.out.println("actual std deviation: " + stdDeviation);
-		String message = "Actual median latency " + medianLatency + " > " + 
-				(latency + delta) + " (Expected median latency + deviation)";
-		assertTrue(message, medianLatency < (latency + delta));
+		double maxEndTime = StatUtils.max(actualEndTimeArray);
+		double minEndTime = StatUtils.min(actualEndTimeArray);
+		double throughPut = 1000 * actualEndTimeArray.length / (maxEndTime - minEndTime);
+		System.out.println(String.format("throughPut: %.0f requests/sec", throughPut));
+		String message = "Actual median latency " + actualMedianRespTime + " > " + 
+				(expectedMedianRespTime + delta) + " (Expected median latency + deviation)";
+		assertTrue(message, actualMedianRespTime < (expectedMedianRespTime + delta));
 	}
 }

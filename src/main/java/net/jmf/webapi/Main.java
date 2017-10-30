@@ -5,6 +5,7 @@ import java.net.URI;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
@@ -26,8 +27,10 @@ public class Main {
     public static HttpServer startServer() {
         // create a resource config that scans for JAX-RS resources and providers
         // in net.jmf.cnormsvc package
-        final ResourceConfig rc = new ResourceConfig().packages("net.jmf.cnormsvc");
-
+        final ResourceConfig rc = new ResourceConfig()
+        		.packages("net.jmf.webapi")
+        		.register(JacksonFeature.class);
+        
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);

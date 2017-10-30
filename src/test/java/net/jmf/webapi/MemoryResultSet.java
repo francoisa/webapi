@@ -9,9 +9,9 @@ import org.apache.jmeter.samplers.SampleResult;
 
 public class MemoryResultSet extends ResultCollector {
 	private static final long serialVersionUID = 1820566879373727240L;
-	private List<Long> times;
+	private List<SampleData> times;
 	
-    public MemoryResultSet(Summariser summer, List<Long> times) {
+    public MemoryResultSet(Summariser summer, List<SampleData> times) {
         super(summer);
         this.times = times;
     }
@@ -21,7 +21,7 @@ public class MemoryResultSet extends ResultCollector {
         super.sampleOccurred(e);
         SampleResult r = e.getResult();
         if (r.isSuccessful()) {
-            times.add(r.getTime());
+            times.add(new SampleData(r.getEndTime(), r.getTime()));
         }
     }
 }
